@@ -34,3 +34,29 @@ let rec gen_list_recur (gen:unit -> 'a) (count:int) (l:'a list) : 'a list =
   else gen_list_recur gen (count-1) ((gen ()) :: l)
 
 let gen_list gen count = gen_list_recur gen count []
+
+module type Set = sig
+  type 'a t
+  val empty : 'a t
+  val add : 'a -> 'a t -> 'a t
+  val size : 'a t -> int
+end
+
+module TreeSet = struct
+  type 'a t =
+    | Leaf
+    | Node of 'a * 'a t * 'a t
+
+  let rec add item = function
+    | Leaf -> Node(item,Leaf,Leaf)
+    | Node(x,l,r) ->
+        if item=x then Node(x,l,r)
+        else if item < x then Node(x, (add item l), r)
+        else Node(x, l, (add item r))
+
+  let rec size = function
+    | Leaf -> 0
+    | Node(_,l,r) -> 1 + size l + size r
+
+  let empty = Leaf
+end
