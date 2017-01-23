@@ -22,3 +22,15 @@ let prefs : (string * (int list)) list = [
   ("Jim", [24; 22; 30; 36]);
   ("Jim", [6; 14; 17; 14]);
 ]
+
+let list_sum = List.fold_left (+) 0
+
+let pick_best eval = function
+  | [] -> failwith "Must pick best from at least one option"
+  | o :: os -> List.fold_left (fun a b -> if (eval a b) < 0 then a else b) o os
+
+let rec gen_list_recur (gen:unit -> 'a) (count:int) (l:'a list) : 'a list =
+  if count=0 then l
+  else gen_list_recur gen (count-1) ((gen ()) :: l)
+
+let gen_list gen count = gen_list_recur gen count []
