@@ -60,3 +60,47 @@ module TreeSet = struct
 
   let empty = Leaf
 end
+
+module type Optimizable = sig
+  type input
+  type output
+  type state
+  val iter : state -> state
+  val eval : state -> state -> int
+  val state_of_data : input -> state
+  val output_of_state : state -> output
+  val stats_of_state : state -> string
+end
+
+module type Optimize = sig
+  type input
+  type output
+  val optimize : int -> int -> int -> input -> output
+  val optimize_with_stats : int -> int -> int -> input -> output
+end
+
+module Optimize (M : Optimizable) = struct
+  type input = M.input
+  type output = M.output
+
+  let rec optimize_tree breadth depth max_depth state =
+    if depth = max_depth then state else
+    let do_try = fun () -> optimize_tree breadth (depth+1) max_depth (M.iter state) in
+    let tries = gen_list do_try 5 in
+    pick_best M.eval tries
+
+  let rec optimize_loop breadth max_depth times state =
+    if times=0 then state
+    else let new_state = optimize_tree breadth 0 max_depth state in
+    optimize_loop breadth max_depth (times-1) new_state
+
+  let _optimize skip_stats breadth depth times data =
+    data |>
+    M.state_of_data |>
+    optimize_loop breadth depth times |>
+    (fun state -> if skip_stats then state else (print_endline (M.stats_of_state state); state)) |>
+    M.output_of_state
+
+  let optimize = _optimize true
+  let optimize_with_stats = _optimize false
+end
