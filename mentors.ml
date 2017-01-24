@@ -1,6 +1,8 @@
 Random.init 10;;
 
-let prefs : (string * (int list)) list = [
+type request = {name:string; prefs:int list}
+
+let sample_prefs : (string * (int list)) list = [
   ("Jim", [17; 26; 26; 25]);
   ("Jim", [22; 13; 26; 33]);
   ("Jim", [12; 4; 2; 23]);
@@ -135,9 +137,13 @@ end
 module MentorPrefs = struct
   type pref = int * int
 
-  type input = (string * (int list)) list
-  type output = (string * int) list
-  type state = (string * int * (int list)) list
+  type input = request list
+
+  type assignment = {name:string; mentor:int}
+  type output = assignment list
+
+  type request_with_assignment = {name:string; prefs:int list; mentor: int}
+  type state = request_with_assignment list
 
   let scored_pref : int list -> pref list = function
     | [first; second; third; fourth] ->
@@ -146,12 +152,12 @@ module MentorPrefs = struct
         [(first, 14); (second, 13); (third, 12)]
     | _ -> []
 
-  let convert_pref (n,pref) = match pref with
+  let convert_pref ({name;prefs}:request) = match prefs with
     | [] -> failwith "Each student must have at least one preference"
-    | p :: ps -> (n, p, pref)
+    | p :: ps -> {name;prefs;mentor=p}
 
   let state_of_data = List.map convert_pref
-  let output_of_state = List.map (fun (name,mentor,prefs) -> (name,mentor))
+  let output_of_state : state -> output = List.map (fun {name;mentor;prefs} -> {name;mentor})
 
   let rec get_one_score pref m =
     match pref with
@@ -160,11 +166,14 @@ module MentorPrefs = struct
         else get_one_score ps m
     | [] -> failwith "Should only assign chosen mentors"
 
-  let rec score_set_rec assignments taken score count = match assignments with
-  | [] -> let diff = (TreeSet.size taken) - count in
-    if diff != 0 then diff else score
-  | (n,m,pref) :: rest ->
-    score_set_rec rest (TreeSet.add m taken) (score + get_one_score (scored_pref pref) m) (count+1)
+  let rec score_set_rec (assignments:state) taken score count = match assignments with
+  | [] ->
+      let diff = (TreeSet.size taken) - count in
+      if diff != 0 then diff else score
+  | {name;mentor;prefs} :: rest ->
+      let set_with_mentor = TreeSet.add mentor taken in
+      let updated_score = score + get_one_score (scored_pref prefs) mentor in
+      score_set_rec rest set_with_mentor updated_score (count+1)
 
   let score_set assignments = score_set_rec assignments TreeSet.empty 0 0
   let eval a1 a2 = (score_set a2) - (score_set a1)
@@ -185,18 +194,20 @@ module MentorPrefs = struct
 
   let pick_random = pick_random_rec None 0
 
-  let switch_mentor (n, m, pref) =
+  let switch_mentor (r:request_with_assignment) =
     let new_choice =
-      match pick_random (List.filter ((!=) m) pref) with
+      match pick_random (List.filter ((!=) r.mentor) r.prefs) with
       | None -> failwith "Should have found a new mentor choice"
       | Some c -> c
-      in (n, new_choice, pref)
+    in {r with mentor=new_choice}
 
   let iter = change_random_member switch_mentor
 
-  let rec get_rank_rec (n,m,pref) count = match pref with
+  let rec get_rank_rec (r:request_with_assignment) count =
+    let {name;mentor;prefs} = r in
+    match prefs with
     | [] -> failwith "Must have at least one preference"
-    | p :: ps -> if m=p then count else get_rank_rec (n,m,ps) (count+1)
+    | p :: ps -> if mentor=p then count else get_rank_rec {r with prefs=ps} (count+1)
 
   let get_rank a = get_rank_rec a 1
 
