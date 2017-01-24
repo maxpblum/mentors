@@ -243,6 +243,82 @@ let generate_requests student_count mentor_count =
   let gen_student = fun () -> ("Jim", List.map (fun () -> 1 + Random.int mentor_count) [(); (); (); ()]) in
   gen_list gen_student student_count
 
+let trench_b : MentorPrefs.input = [
+  {name="Redacted Redacted"; prefs=[170;216;115;201]};
+  {name="Redacted Redacted"; prefs=[52;130;192;71]};
+  {name="Redacted Redacted"; prefs=[163;206;85;118]};
+  {name="Redacted Redacted"; prefs=[163;209;84;45]};
+  {name="Redacted Redacted"; prefs=[169;194;163;76]};
+  {name="Redacted Redacted"; prefs=[90;107;187;154]};
+  {name="Redacted Redacted"; prefs=[163;166;162;6]};
+  {name="Redacted Redacted"; prefs=[163;176;211;130]};
+  {name="Redacted Redacted"; prefs=[79;56;116;118]};
+  {name="Redacted Redacted"; prefs=[162;147;139;3]};
+  {name="Redacted Redacted"; prefs=[201;162;71;9]};
+  {name="Redacted Redacted"; prefs=[163;179;80;194]};
+  {name="Redacted Redacted"; prefs=[16;95;88;56]};
+  {name="Redacted Redacted"; prefs=[204;101;28;181]};
+  {name="Redacted Redacted"; prefs=[185;124;186;197]};
+  {name="Redacted Redacted"; prefs=[215;216;169;107]};
+  {name="Redacted Redacted"; prefs=[215;216;169;42]};
+  {name="Redacted Redacted"; prefs=[6;160;45;174]};
+  {name="Redacted Redacted"; prefs=[163;107;28;179]};
+  {name="Redacted Redacted"; prefs=[165;113;119;35]};
+  {name="Redacted Redacted"; prefs=[215;190;173;124]};
+  {name="Redacted Redacted"; prefs=[71;194;53;42]};
+  {name="Redacted Redacted"; prefs=[201;163;167;151]};
+  {name="Redacted Redacted"; prefs=[160;145;116;217]};
+  {name="Redacted Redacted"; prefs=[49;214;69;88]};
+  {name="Redacted Redacted"; prefs=[215;60;42;147]};
+  {name="Redacted Redacted"; prefs=[182;197;97;136]};
+  {name="Redacted Redacted"; prefs=[167;194;139;71]};
+  {name="Redacted Redacted"; prefs=[185;194;160;163]};
+  {name="Redacted Redacted"; prefs=[19;93;171;197]};
+  {name="Redacted Redacted"; prefs=[163;71;215;107]};
+  {name="Redacted Redacted"; prefs=[53;65;147;110]};
+  {name="Redacted Redacted"; prefs=[215;188;184;107]};
+  {name="Redacted Redacted"; prefs=[107;139;163;59]};
+  {name="Redacted Redacted"; prefs=[169;163;42;106]};
+  {name="Redacted Redacted"; prefs=[139;107;172;197]};
+  {name="Redacted Redacted"; prefs=[169;194;126;151]};
+  {name="Redacted Redacted"; prefs=[57;45;63;90]};
+  {name="Redacted Redacted"; prefs=[209;161;162;202]};
+  {name="Redacted Redacted"; prefs=[169;139;151;192]};
+  {name="Redacted Redacted"; prefs=[139;71;45;163]};
+  {name="Redacted Redacted"; prefs=[126;163;201;169]};
+  {name="Redacted Redacted"; prefs=[106;204;99;169]};
+  {name="Redacted Redacted"; prefs=[68;141;146;80]};
+  {name="Redacted Redacted"; prefs=[95;4;107;110]};
+  {name="Redacted Redacted"; prefs=[160;191;53;19]};
+  {name="Redacted Redacted"; prefs=[170;216;115;201]};
+  {name="Redacted Redacted"; prefs=[104;85;19;74]};
+  {name="Redacted Redacted"; prefs=[90;148;161;216]};
+  {name="Redacted Redacted"; prefs=[216;42;167;115]};
+  {name="Redacted Redacted"; prefs=[204;127;194;88]};
+  {name="Redacted Redacted"; prefs=[107;160;56;199]};
+  {name="Redacted Redacted"; prefs=[49;107;182;79]};
+  {name="Redacted Redacted"; prefs=[193;88;207;217]};
+  {name="Redacted Redacted"; prefs=[188;216;90;18]};
+  {name="Redacted Redacted"; prefs=[139;107;73;167]};
+  {name="Redacted Redacted"; prefs=[185;124;19;197]};
+  {name="Redacted Redacted"; prefs=[119;126;35;194]};
+  {name="Redacted Redacted"; prefs=[3;145;217;71]};
+  {name="Redacted Redacted"; prefs=[104;197;182;93]};
+  {name="Redacted Redacted"; prefs=[127;109;44;]};
+  {name="Redacted Redacted"; prefs=[163;204;85;160]};
+  {name="Redacted Redacted"; prefs=[76;130;42;167]};
+  {name="Redacted Redacted"; prefs=[145;209;162;217]};
+  {name="Redacted Redacted"; prefs=[216;169;115;194]};
+  {name="Redacted Redacted"; prefs=[169;163;76;]};
+  {name="Redacted Redacted"; prefs=[184;197;76;167]};
+  {name="Redacted Redacted"; prefs=[79;85;35;167]};
+  {name="Redacted Redacted"; prefs=[71;110;119;204]};
+  {name="Redacted Redacted"; prefs=[18;9;139;138]};
+  {name="Redacted Redacted"; prefs=[71;129;204;210]};
+  {name="Redacted Redacted"; prefs=[132;87;103;66]};
+  {name="Redacted Redacted"; prefs=[103;73;125;98]};
+]
+
 let stop state =
   let open MentorPrefs in
   let mr = mean_rank state in
