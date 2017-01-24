@@ -38,7 +38,10 @@ let gen_list gen count = gen_list_recur gen count []
 module type Set = sig
   type 'a t
   val empty : 'a t
+  val mem : 'a -> 'a t -> bool
   val add : 'a -> 'a t -> 'a t
+  val min : 'a t -> 'a
+  val remove : 'a -> 'a t -> 'a t
   val size : 'a t -> int
 end
 
@@ -47,12 +50,31 @@ module TreeSet = struct
     | Leaf
     | Node of 'a * 'a t * 'a t
 
-  let rec add item = function
-    | Leaf -> Node(item,Leaf,Leaf)
+  let rec search item if_leaf if_node = function
+    | Leaf -> if_leaf
     | Node(x,l,r) ->
-        if item=x then Node(x,l,r)
-        else if item < x then Node(x, (add item l), r)
-        else Node(x, l, (add item r))
+        if item=x then if_node l r
+        else if item<x then search item if_leaf if_node l
+        else search item if_leaf if_node r
+
+  let mem item = search item false (fun _ _ -> true)
+  let add item = search item (Node(item, Leaf, Leaf)) (fun l r -> Node(item,l,r))
+
+  let rec min = function
+    | Leaf -> failwith "Tree must have at least one entry"
+    | Node(x,Leaf,_) -> x
+    | Node(x,l,_) -> min l
+
+  let rec remove item = function
+    | Leaf -> raise Not_found
+    | Node(x,l,_)    when item < x -> remove item l
+    | Node(x,_,r)    when item > x -> remove item r
+    | Node(x,Leaf,r) when item = x -> r
+    | Node(x,l,Leaf) when item = x -> l
+    | Node(x,l,r)                  ->
+        let new_val = min r in
+        let r_without_min = remove new_val r in
+        Node(new_val, l, r_without_min)
 
   let rec size = function
     | Leaf -> 0
