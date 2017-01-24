@@ -129,7 +129,7 @@ module Optimize (M : Optimizable) = struct
 
   let rec optimize_loop skip_stats stop breadth max_depth times state =
     (if skip_stats then () else print_endline ((string_of_int times) ^ " times left."));
-    if (stop state) && (times=0) then state
+    if (stop state) && (times<=0) then state
     else let new_state = optimize_tree breadth 0 max_depth state in
     let chosen_state = pick_best M.eval [state; new_state] in
     let new_depth = if chosen_state == new_state then max_depth else (max_depth+1) in
