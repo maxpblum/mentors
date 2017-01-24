@@ -52,31 +52,44 @@ module TreeSet = struct
     | Leaf
     | Node of 'a * 'a t * 'a t
 
-  let rec search item if_leaf if_node = function
-    | Leaf -> if_leaf
+  let rec mem item = function
+    | Leaf -> false
     | Node(x,l,r) ->
-        if item=x then if_node l r
-        else if item<x then search item if_leaf if_node l
-        else search item if_leaf if_node r
+        if item=x then true
+        else if item<x then mem item l
+        else mem item r
 
-  let mem item = search item false (fun _ _ -> true)
-  let add item = search item (Node(item, Leaf, Leaf)) (fun l r -> Node(item,l,r))
+  let rec add_rec item = function
+    | Leaf -> Node(item, Leaf, Leaf)
+    | Node(x,l,r) ->
+        if item<x then Node(x, (add_rec item l), r)
+        else Node(x, l, (add_rec item r))
+
+  let add item tree =
+    if mem item tree then tree
+    else add_rec item tree
 
   let rec min = function
     | Leaf -> failwith "Tree must have at least one entry"
     | Node(x,Leaf,_) -> x
     | Node(x,l,_) -> min l
 
-  let rec remove item = function
+  let rec remove_rec item = function
     | Leaf -> raise Not_found
-    | Node(x,l,_)    when item < x -> remove item l
-    | Node(x,_,r)    when item > x -> remove item r
-    | Node(x,Leaf,r) when item = x -> r
-    | Node(x,l,Leaf) when item = x -> l
-    | Node(x,l,r)                  ->
-        let new_val = min r in
-        let r_without_min = remove new_val r in
-        Node(new_val, l, r_without_min)
+    | Node(x,l,r) ->
+        if item < x then remove_rec item l else
+        if item > x then remove_rec item r else
+        match (l,r) with
+        | (Leaf,_) -> r
+        | (_,Leaf) -> l
+        | (_,_) ->
+            let new_val = min r in
+            let r_without_min = remove_rec new_val r in
+            Node(new_val, l, r_without_min)
+
+  let remove item tree =
+    if not (mem item tree) then tree
+    else remove_rec item tree
 
   let rec size = function
     | Leaf -> 0
