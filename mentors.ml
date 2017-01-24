@@ -104,8 +104,9 @@ module type Optimize = sig
 end
 
 module Optimize (M : Optimizable) = struct
-  type input = M.input
-  type output = M.output
+  include M
+  (* type input = M.input *)
+  (* type output = M.output *)
 
   let rec optimize_tree breadth depth max_depth state =
     if depth = max_depth then state else
