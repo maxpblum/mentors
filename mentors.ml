@@ -157,7 +157,7 @@ module MentorPrefs = struct
   type output = assignment list
 
   type request_with_assignment = {name:string; prefs:int list; mentor: int}
-  type state = request_with_assignment list
+  type state = {choices:request_with_assignment list; score: int; taken: int TreeSet.t}
 
   let scored_pref : int list -> pref list = function
     | [first; second; third; fourth] ->
@@ -166,13 +166,6 @@ module MentorPrefs = struct
         [(first, 14); (second, 13); (third, 12)]
     | _ -> []
 
-  let convert_pref ({name;prefs}:request) = match prefs with
-    | [] -> failwith "Each student must have at least one preference"
-    | p :: ps -> {name;prefs;mentor=p}
-
-  let state_of_data = List.map convert_pref
-  let output_of_state : state -> output = List.map (fun {name;mentor;prefs} -> {name;mentor})
-
   let rec get_one_score pref m =
     match pref with
     | (pm, s) :: ps ->
@@ -180,7 +173,7 @@ module MentorPrefs = struct
         else get_one_score ps m
     | [] -> failwith "Should only assign chosen mentors"
 
-  let rec score_set_rec (assignments:state) taken score count = match assignments with
+  let rec score_set_rec choices taken score count = match choices with
   | [] ->
       let diff = (TreeSet.size taken) - count in
       if diff != 0 then diff else score
@@ -190,7 +183,24 @@ module MentorPrefs = struct
       score_set_rec rest set_with_mentor updated_score (count+1)
 
   let score_set assignments = score_set_rec assignments TreeSet.empty 0 0
-  let eval a1 a2 = (score_set a2) - (score_set a1)
+  let eval a1 a2 = (score_set a2.choices) - (score_set a1.choices)
+
+  let convert_pref ({name;prefs}:request) = match prefs with
+    | [] -> failwith "Each student must have at least one preference"
+    | p :: ps -> {name;prefs;mentor=p}
+
+  let state_of_data d =
+    let first_choices = List.map convert_pref d in
+    let first_taken =
+      let assignments = List.map (fun {mentor} -> mentor) first_choices in
+      List.fold_right TreeSet.add assignments TreeSet.empty
+      in
+    let first_score = score_set first_choices in
+    {score=first_score;choices=first_choices;taken=first_taken}
+
+  let assignment_without_prefs ({name;mentor}:request_with_assignment) : assignment = {name;mentor}
+
+  let output_of_state ({choices}:state) : output = List.map assignment_without_prefs choices
 
   let rec change_member changer i = function
     | [] -> failwith "change_member index should be less than list length"
@@ -215,7 +225,7 @@ module MentorPrefs = struct
       | Some c -> c
     in {r with mentor=new_choice}
 
-  let iter = change_random_member switch_mentor
+  let iter s = {s with choices=(change_random_member switch_mentor s.choices)}
 
   let rec get_rank_rec (r:request_with_assignment) count =
     let {name;mentor;prefs} = r in
@@ -232,10 +242,10 @@ module MentorPrefs = struct
 
   let mean_rank a = a |> List.map get_rank |> mean
 
-  let stats_of_state a =
-    let score = score_set a in
+  let stats_of_state (s:state) =
+    let score = score_set s.choices in
     if score < 0 then "Failed. Score: " ^ (string_of_int score) ^ "\n"
-    else (
+    else let a = s.choices in (
       "Score: " ^ (string_of_int score) ^ "\n" ^
       "1sts: " ^ (a |> List.map get_rank |> List.find_all ((=) 1) |> List.length |> string_of_int) ^ "\n" ^
       "2nds: " ^ (a |> List.map get_rank |> List.find_all ((=) 2) |> List.length |> string_of_int) ^ "\n" ^
@@ -244,9 +254,9 @@ module MentorPrefs = struct
       "Mean rank: " ^ (a |> mean_rank |> string_of_float)
     )
 
-  let string_of_state (a:state) =
+  let string_of_state ({choices}:state) =
     let make_line {name;mentor} = name ^ " " ^ (string_of_int mentor) ^ "\n" in
-    let lines = List.map make_line a in
+    let lines = List.map make_line choices in
     List.fold_right (^) lines ""
 end
 
@@ -334,8 +344,8 @@ let trench_b : MentorPrefs.input = [
 
 let stop state =
   let open MentorPrefs in
-  let mr = mean_rank state in
-  let sc = score_set state in
+  let mr = mean_rank state.choices in
+  let sc = score_set state.choices in
   print_endline (stats_of_state state);
   print_string (string_of_state state);
   sc > 0 && mr < 3.0
