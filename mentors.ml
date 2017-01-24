@@ -89,20 +89,25 @@ module Optimize (M : Optimizable) = struct
     let tries = gen_list do_try 5 in
     pick_best M.eval tries
 
-  let rec optimize_loop breadth max_depth times state =
-    if times=0 then state
+  let rec optimize_loop skip_stats stop breadth max_depth times state =
+    (if skip_stats then () else print_endline ((string_of_int times) ^ " times left."));
+    if (stop state) && (times=0) then state
     else let new_state = optimize_tree breadth 0 max_depth state in
-    optimize_loop breadth max_depth (times-1) new_state
+    let chosen_state = pick_best M.eval [state; new_state] in
+    let new_depth = if chosen_state == new_state then max_depth else (max_depth+1) in
+    optimize_loop skip_stats stop breadth new_depth (times-1) chosen_state
 
-  let _optimize skip_stats breadth depth times data =
+  let _optimize skip_stats stop breadth depth times data =
     data |>
     M.state_of_data |>
-    optimize_loop breadth depth times |>
+    optimize_loop skip_stats stop breadth depth times |>
     (fun state -> if skip_stats then state else (print_endline (M.stats_of_state state); state)) |>
     M.output_of_state
 
-  let optimize = _optimize true
-  let optimize_with_stats = _optimize false
+  let whenever _ = true
+  let optimize = _optimize true whenever
+  let optimize_with_stats = _optimize false whenever
+  let optimize_until stop = _optimize false stop
 end
 
 module MentorPrefs = struct
@@ -191,6 +196,11 @@ module MentorPrefs = struct
       "4rds: " ^ (a |> List.map get_rank |> List.find_all ((=) 4) |> List.length |> string_of_int) ^ "\n" ^
       "Mean rank: " ^ (a |> mean_rank |> string_of_float)
     )
+
+  let string_of_state (a:state) =
+    let make_line {name;mentor} = name ^ " " ^ (string_of_int mentor) ^ "\n" in
+    let lines = List.map make_line a in
+    List.fold_right (^) lines ""
 end
 
 module PrefsOptimizer = Optimize(MentorPrefs)
@@ -198,3 +208,11 @@ module PrefsOptimizer = Optimize(MentorPrefs)
 let generate_requests student_count mentor_count =
   let gen_student = fun () -> ("Jim", List.map (fun () -> 1 + Random.int mentor_count) [(); (); (); ()]) in
   gen_list gen_student student_count
+
+let stop state =
+  let open MentorPrefs in
+  let mr = mean_rank state in
+  let sc = score_set state in
+  print_endline (stats_of_state state);
+  print_string (string_of_state state);
+  sc > 0 && mr < 3.0
