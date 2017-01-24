@@ -37,53 +37,51 @@ let rec gen_list_recur (gen:unit -> 'a) (count:int) (l:'a list) : 'a list =
 
 let gen_list gen count = gen_list_recur gen count []
 
-module TreeSet = struct
+module TreeCounter = struct
   type 'a t =
     | Leaf
-    | Node of 'a * 'a t * 'a t
+    | Node of 'a * int * 'a t * 'a t
 
   let rec mem item = function
     | Leaf -> false
-    | Node(x,l,r) ->
+    | Node(x,_,l,r) ->
         if item=x then true
         else if item<x then mem item l
         else mem item r
 
-  let rec add_rec item = function
-    | Leaf -> Node(item, Leaf, Leaf)
-    | Node(x,l,r) ->
-        if item<x then Node(x, (add_rec item l), r)
-        else Node(x, l, (add_rec item r))
-
-  let add item tree =
-    if mem item tree then tree
-    else add_rec item tree
+  let rec inc item = function
+    | Leaf -> Node(item, 1, Leaf, Leaf)
+    | Node(x,c,l,r) ->
+        if item=x then Node(x, c+1, l, r) else
+        if item<x then Node(x, c, (inc item l), r) else
+        Node(x, c, l, (inc item r))
 
   let rec min = function
     | Leaf -> failwith "Tree must have at least one entry"
-    | Node(x,Leaf,_) -> x
-    | Node(x,l,_) -> min l
+    | Node(x,c,Leaf,_) -> (x,c)
+    | Node(x,_,l,_) -> min l
 
-  let rec remove_rec item = function
+  let rec dec_rec force_delete item = function
     | Leaf -> raise Not_found
-    | Node(x,l,r) ->
-        if item < x then remove_rec item l else
-        if item > x then remove_rec item r else
+    | Node(x,c,l,r) ->
+        if item < x then dec_rec false item l else
+        if item > x then dec_rec false item r else
+        if (c > 1 && not force_delete) then Node(x, c-1, l, r) else
         match (l,r) with
         | (Leaf,_) -> r
         | (_,Leaf) -> l
         | (_,_) ->
-            let new_val = min r in
-            let r_without_min = remove_rec new_val r in
-            Node(new_val, l, r_without_min)
+            let (new_val,new_count) = min r in
+            let r_without_min = dec_rec true new_val r in
+            Node(new_val, new_count, l, r_without_min)
 
-  let remove item tree =
+  let dec item tree =
     if not (mem item tree) then tree
-    else remove_rec item tree
+    else dec_rec false item tree
 
   let rec size = function
     | Leaf -> 0
-    | Node(_,l,r) -> 1 + size l + size r
+    | Node(_,_,l,r) -> 1 + size l + size r
 
   let empty = Leaf
 end
@@ -147,7 +145,7 @@ module MentorPrefs = struct
   type output = assignment list
 
   type request_with_assignment = {name:string; prefs:int list; mentor: int}
-  type state = {choices:request_with_assignment list; score: int; taken: int TreeSet.t}
+  type state = {choices:request_with_assignment list; score: int; taken: int TreeCounter.t}
 
   let scored_pref : int list -> pref list = function
     | [first; second; third; fourth] ->
@@ -165,14 +163,14 @@ module MentorPrefs = struct
 
   let rec score_set_rec choices taken score count = match choices with
   | [] ->
-      let diff = (TreeSet.size taken) - count in
+      let diff = (TreeCounter.size taken) - count in
       if diff != 0 then diff else score
   | {name;mentor;prefs} :: rest ->
-      let set_with_mentor = TreeSet.add mentor taken in
+      let set_with_mentor = TreeCounter.inc mentor taken in
       let updated_score = score + get_one_score (scored_pref prefs) mentor in
       score_set_rec rest set_with_mentor updated_score (count+1)
 
-  let score_set assignments = score_set_rec assignments TreeSet.empty 0 0
+  let score_set assignments = score_set_rec assignments TreeCounter.empty 0 0
   let eval a1 a2 = (score_set a2.choices) - (score_set a1.choices)
 
   let convert_pref ({name;prefs}:request) = match prefs with
@@ -183,7 +181,7 @@ module MentorPrefs = struct
     let first_choices = List.map convert_pref d in
     let first_taken =
       let assignments = List.map (fun {mentor} -> mentor) first_choices in
-      List.fold_right TreeSet.add assignments TreeSet.empty
+      List.fold_right TreeCounter.inc assignments TreeCounter.empty
       in
     let first_score = score_set first_choices in
     {score=first_score;choices=first_choices;taken=first_taken}
