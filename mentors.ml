@@ -209,7 +209,7 @@ module MentorPrefs = struct
 
   let stats_of_state a =
     let score = score_set a in
-    if score < 0 then "Failed.\n"
+    if score < 0 then "Failed. Score: " ^ (string_of_int score) ^ "\n"
     else (
       "Score: " ^ (string_of_int score) ^ "\n" ^
       "1sts: " ^ (a |> List.map get_rank |> List.find_all ((=) 1) |> List.length |> string_of_int) ^ "\n" ^
