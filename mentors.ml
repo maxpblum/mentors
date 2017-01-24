@@ -37,16 +37,6 @@ let rec gen_list_recur (gen:unit -> 'a) (count:int) (l:'a list) : 'a list =
 
 let gen_list gen count = gen_list_recur gen count []
 
-module type Set = sig
-  type 'a t
-  val empty : 'a t
-  val mem : 'a -> 'a t -> bool
-  val add : 'a -> 'a t -> 'a t
-  val min : 'a t -> 'a
-  val remove : 'a -> 'a t -> 'a t
-  val size : 'a t -> int
-end
-
 module TreeSet = struct
   type 'a t =
     | Leaf
