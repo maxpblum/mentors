@@ -1,0 +1,19 @@
+{
+  "name": "mentors",
+  "version": "0.0.1",
+  "description": "See README",
+  "main": "mentors.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/maxpblum/mentors.git"
+  },
+  "author": "Max Blum-Campo",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/maxpblum/mentors/issues"
+  },
+  "homepage": "https://github.com/maxpblum/mentors#readme"
+}
