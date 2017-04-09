@@ -17,13 +17,13 @@ class TreeCounter {
   static empty() { return new Leaf(); }
 
   dec(item) {
-    if (!this.mem(item)) return [this, 0];
+    if (!this.isMember(item)) return [this, 0];
     return this._decRec(false, item);
   }
 }
 
 class Leaf extends TreeCounter {
-  mem(item) { return false; }
+  isMember(item) { return false; }
 
   inc(item) {
     const incremented = new Node(
@@ -54,12 +54,12 @@ class Node extends TreeCounter {
   }
 
   // TODO: Rename to isMember.
-  mem(item) { 
+  isMember(item) {
     if (item == this.val) { return true; }
     if (item < this.val) {
-      return this.left.mem(item);
+      return this.left.isMember(item);
     }
-    return this.right.mem(item);
+    return this.right.isMember(item);
   }
 
   _incThis(item) {
