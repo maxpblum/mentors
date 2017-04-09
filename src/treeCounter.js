@@ -62,7 +62,7 @@ class Node extends TreeCounter {
     return this.right.has(item);
   }
 
-  _incThis(item) {
+  _incThis() {
     const incremented = new Node(
       this.val,
       this.count + 1,
@@ -93,8 +93,8 @@ class Node extends TreeCounter {
 
   inc(item) {
     if (item == this.val) return this._incThis();
-    if (item < this.val) return this._incLeft();
-    return this._incRight();
+    if (item < this.val) return this._incLeft(item);
+    return this._incRight(item);
   }
 
   min() {
@@ -119,7 +119,7 @@ class Node extends TreeCounter {
     return [decremented, sizeDiff];
   }
 
-  _decThis(forceDelete, item) {
+  _decThis(forceDelete) {
     if (this.left instanceof Leaf)
       return [this.right, -1];
     if (this.right instanceof Leaf)
@@ -137,7 +137,7 @@ class Node extends TreeCounter {
       return this._decLeft(forceDelete, item);
     if (item > this.val)
       return this._decRight(forceDelete, item);
-    return this._decThis(forceDelete, item);
+    return this._decThis(forceDelete);
   }
 }
 
