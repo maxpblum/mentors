@@ -62,5 +62,7 @@ module.exports = function Optimizer(Optimizable) {
         report(optimized);
         return optimized;
     }
+
+    static iterate() {}
   };
 };
