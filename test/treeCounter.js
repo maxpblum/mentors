@@ -52,6 +52,7 @@ describe('TreeCounter', () => {
       (counter, {change, num, diff}) => {
         const [newCounter, actualDiff] = counter[change](num);
         expect(actualDiff).to.equal(diff);
+        expect(newCounter.size()).to.equal(counter.size() + diff);
         return newCounter;
       },
       TreeCounter.empty()

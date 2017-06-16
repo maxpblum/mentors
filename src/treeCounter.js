@@ -47,13 +47,18 @@ class Leaf extends TreeCounter {
 class Node extends TreeCounter {
   constructor(val, count, left, right) {
     super();
+    if (!(left instanceof TreeCounter)) { throw new Error('Somehow we are adding a non-node.'); }
+    if (!(right instanceof TreeCounter)) { throw new Error('Somehow we are adding a non-node.'); }
     this.val = val;
     this.count = count;
     this.left = left;
     this.right = right;
   }
 
-  // TODO: Rename to has.
+  size() {
+    return 1 + this.left.size() + this.right.size();
+  }
+
   has(item) {
     if (item == this.val) { return true; }
     if (item < this.val) {
@@ -125,7 +130,7 @@ class Node extends TreeCounter {
     if (this.right instanceof Leaf)
       return [this.left, -1];
     const [newVal, newCount] = this.right.min();
-    const rWithoutMin = this.right._decRec(
+    const [rWithoutMin, _] = this.right._decRec(
       true, newVal);
     const decremented = new Node(
       newVal, newCount, this.left, rWithoutMin);
