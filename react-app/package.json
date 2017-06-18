@@ -1,7 +1,6 @@
 {
-  "name": "react-app",
+  "name": "mentors",
   "version": "0.1.0",
-  "private": true,
   "dependencies": {
     "react": "^15.6.1",
     "react-dom": "^15.6.1"
@@ -9,6 +8,8 @@
   "devDependencies": {
     "react-scripts": "1.0.7"
   },
+  "homepage" : "http://maxpblum.github.io/mentors",
+  "author": "max.blum@gmail.com",
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
