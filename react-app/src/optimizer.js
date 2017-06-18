@@ -1,6 +1,6 @@
-const pickBest = (eval, l) =>
+const pickBest = (evaluate, l) =>
   l.reduce((best, x) =>
-    eval(best, x) < 0 ? best : x);
+    evaluate(best, x) < 0 ? best : x);
 
 const genList = (gen, count) => {
   const l = [];
@@ -25,7 +25,7 @@ module.exports = function Optimizer(Optimizable) {
 
       const tries = genList(doTry, this.breadth);
 
-      return pickBest(Optimizable.eval, tries);
+      return pickBest(Optimizable.evaluate, tries);
     }
 
     loop(timesLeft, maxDepth, state) {
@@ -39,7 +39,7 @@ module.exports = function Optimizer(Optimizable) {
         0, maxDepth, state);
 
       const chosenState = pickBest(
-        Optimizable.eval, [state, newState]);
+        Optimizable.evaluate, [state, newState]);
 
       const newMaxDepth = (chosenState === newState) ?
         maxDepth : maxDepth + 1;

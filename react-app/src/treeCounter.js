@@ -1,13 +1,13 @@
 const listSum = l =>
   l.reduce((acc, x) => acc + x, 0);
 
-const pickBest = (eval, l) =>
+const pickBest = (evaluate, l) =>
   l.reduce((best, x) =>
-    eval(best, x) < 0 ? best : x);
+    evaluate(best, x) < 0 ? best : x);
 
 const genList = (gen, count) => {
   const l = [];
-  for (const i = 0; i < count; i++) {
+  for (let i = 0; i < count; i++) {
     l.push(gen());
   }
   return l;

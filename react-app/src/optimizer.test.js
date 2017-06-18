@@ -47,7 +47,7 @@ describe('Optimizer', () => {
         outputCatcher.push(newDepth);
         return newDepth;
       }
-      static eval(a, b) { return a; }
+      static evaluate(a, b) { return a; }
     }
     const SimpleOptimizer = Optimizer(Simple);
     const simpleOptimizer = new SimpleOptimizer(
@@ -70,7 +70,7 @@ describe('Optimizer', () => {
 
     class HighestIsBest {
       static iter() { return getNext(); }
-      static eval(a, b) { return a > b ? a : b; }
+      static evaluate(a, b) { return a > b ? a : b; }
       static initialStateFromInput(data) { return data; }
       static statsOfState(state) { return `State is ${state}.`; }
     }

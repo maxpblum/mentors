@@ -10,12 +10,12 @@ const Optimizer = require('./optimizer.js');
 let Request;
 
 const sum = l => l.reduce((sum, n) => sum + n, 0);
-const pickBest = (l, eval) => {
+const pickBest = (l, evaluate) => {
   if (l.length < 2) {
     throw new Error('Must pick from at least two entries.');
   }
   return l.reduce((best, n) =>
-    eval(best, n) < 0 ? best : n);
+    evaluate(best, n) < 0 ? best : n);
 };
 
 const withRandomChangedEntry = (list, changer) => {
@@ -61,7 +61,7 @@ class MentorPrefs {
     return deficit < 0 ? deficit : MentorPrefs.rankScore(pairings);
   }
 
-  static eval(pairingsA, pairingsB) {
+  static evaluate(pairingsA, pairingsB) {
     return MentorPrefs.adjustedScore(pairingsB.choices) - MentorPrefs.adjustedScore(pairingsA.choices);
   }
 
@@ -265,5 +265,5 @@ const trenchB = [
 
 module.exports = MentorPrefs;
 
-const MentorOptimizer = Optimizer(MentorPrefs);
-MentorOptimizer.optimize(state => console.log(MentorPrefs.statsOfState(state)), () => null, 5, 5, 100, trenchB);
+// const MentorOptimizer = Optimizer(MentorPrefs);
+// MentorOptimizer.optimize(state => console.log(MentorPrefs.statsOfState(state)), () => null, 5, 5, 100, trenchB);

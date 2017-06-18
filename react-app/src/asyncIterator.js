@@ -1,8 +1,9 @@
 module.exports = class AsyncIterator {
-  constructor(iterate, initState) {
+  constructor(iterate, initState, onUpdate) {
     this.iterate = iterate;
     this.state = initState;
     this.timeout = null;
+    this.onUpdate = onUpdate;
   }
 
   start() {
@@ -16,12 +17,13 @@ module.exports = class AsyncIterator {
     this.timeout = null;
   }
 
-  iterate() {
+  runIteration() {
     this.state = this.iterate(this.state);
+    this.onUpdate(this.state);
     this.scheduleIteration();
   }
 
   scheduleIteration() {
-    this.timeout = setTimeout(this.iterate.bind(this), 0);
+    this.timeout = setTimeout(this.runIteration.bind(this), 0);
   }
 };
