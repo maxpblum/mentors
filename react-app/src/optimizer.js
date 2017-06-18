@@ -29,6 +29,7 @@ module.exports = function Optimizer(Optimizable) {
     }
 
     loop(timesLeft, maxDepth, state) {
+      console.log('state in optimizer: ', state);
       console.log(`${timesLeft} times left.`);
       this.report(state);
 

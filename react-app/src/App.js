@@ -46,6 +46,7 @@ const Choice = ({data}) => (
 );
 
 const Output = ({output}, index) => {
+  console.log('OUTPUT: ', output);
   return (
     <div className="output" key={index}>
       {output.choices.map((choiceObj, index) =>

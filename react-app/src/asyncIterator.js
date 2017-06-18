@@ -18,12 +18,15 @@ module.exports = class AsyncIterator {
   }
 
   runIteration() {
+    console.log('actually in runIteration, state: ', this.state);
     this.state = this.iterate(this.state);
+    console.log(this.state);
     this.onUpdate(this.state);
     this.scheduleIteration();
   }
 
   scheduleIteration() {
+    console.log('iterating, state: ', this.state);
     this.timeout = setTimeout(this.runIteration.bind(this), 0);
   }
 };
