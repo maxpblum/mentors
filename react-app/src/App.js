@@ -47,11 +47,12 @@ const Choice = ({data}) => (
 
 const Output = ({output}, index) => {
   console.log('OUTPUT: ', output);
+  const outputList = output.choices.map((choiceObj, index) =>
+      <Choice data={choiceObj} key={index} />);
   return (
     <div className="output" key={index}>
-      {output.choices.map((choiceObj, index) =>
-        <Choice data={choiceObj} key={index} />)
-      }
+      {[<p>Mean rank: {Mentorable.meanRank(output.choices)}. Score: {output.score}.</p>]
+        .concat(outputList)}
     </div>
   );
 };
