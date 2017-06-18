@@ -24,4 +24,4 @@ module.exports = class AsyncIterator {
   scheduleIteration() {
     this.timeout = setTimeout(this.iterate.bind(this), 0);
   }
-}
+};
