@@ -98,8 +98,10 @@ class MentorPrefs {
 
   static withRandomlySwitchedMentor({name, prefs, mentor}) {
     const otherOptions = prefs.filter(p => p !== mentor);
-    const choice = Math.floor(Math.random() * otherOptions.length);
-    return {name, prefs, mentor: otherOptions[choice]};
+    // If there weren't multiple unique choices, default to the original.
+    const availableChoices = otherOptions.length > 0 ? otherOptions : prefs;
+    const choice = Math.floor(Math.random() * availableChoices.length);
+    return {name, prefs, mentor: availableChoices[choice]};
   }
 
   static randomSwitchWithScore(requestWithAssignment) {
